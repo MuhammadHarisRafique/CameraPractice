@@ -7,19 +7,92 @@
 //
 
 import UIKit
+import AVFoundation
 
 class ViewController: UIViewController {
 
+    @IBOutlet weak var cameraView: UIView!
+    
+    @IBOutlet weak var imageDisplay: UIImageView!
+    var captureSession = AVCaptureSession()
+    var sessionOutput = AVCaptureStillImageOutput()
+    var layer = AVCaptureVideoPreviewLayer()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+       
+        
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        
+        let devices = AVCaptureDevice.devicesWithMediaType(AVMediaTypeVideo)
+        
+        
+        for device in devices{
+        
+            if device.position == .Back{
+            
+                do{
+                    
+                    let input = try AVCaptureDeviceInput(device: device as! AVCaptureDevice)
+                    
+                    if captureSession.canAddInput(input){
+                    
+                        captureSession.addInput(input)
+                        
+                        sessionOutput.outputSettings = [AVVideoCodecKey:AVVideoCodecJPEG]
+                        
+                        if captureSession.canAddOutput(sessionOutput){
+                        
+                            captureSession.addOutput(sessionOutput)
+                            captureSession.startRunning()
+                            
+                            layer = AVCaptureVideoPreviewLayer(session: captureSession)
+                            layer.videoGravity = AVLayerVideoGravityResizeAspectFill
+                            layer.connection.videoOrientation = .Portrait
+                            self.cameraView.layer.addSublayer(layer)
+                            layer.position = CGPoint(x: self.cameraView.frame.width / 2, y: self.cameraView.frame.height / 2)
+                            layer.bounds = self.cameraView.frame
+                            
+                        }
+                        
+                    }
+                
+                }catch {
+                
+                
+                
+                }
+            
+            
+            }
+        
+        }
+        
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
+   
 
+    @IBAction func takephoto_pressed(sender: UIButton) {
+        
+        
+        if let session = sessionOutput.connectionWithMediaType(AVMediaTypeVideo){
+        
+            
+            sessionOutput.captureStillImageAsynchronouslyFromConnection(session, completionHandler: { (buffer, error) in
+                
+                
+                let imagedata = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(buffer)
+                
+                self.imageDisplay.image = UIImage(data: imagedata)
+                
+            })
+        
+        }
+        
+        
+    }
 
 }
 
