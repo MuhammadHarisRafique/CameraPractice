@@ -12,8 +12,10 @@ import AVFoundation
 class ViewController: UIViewController {
 
     @IBOutlet weak var cameraView: UIView!
-    
     @IBOutlet weak var imageDisplay: UIImageView!
+    
+    
+    
     var captureSession = AVCaptureSession()
     var sessionOutput = AVCaptureStillImageOutput()
     var layer = AVCaptureVideoPreviewLayer()
